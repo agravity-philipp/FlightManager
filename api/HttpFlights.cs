@@ -7,17 +7,32 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace fhhagenberg
 {
     public static class HttpFlights
     {
-        [FunctionName("HttpFlights")]
-        public static async Task<IActionResult> Run(
+        [FunctionName("HttpFlight")]
+        public static async Task<IActionResult> HttpFlight(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get",  Route = "flight")] HttpRequest req,
             ILogger log)
         {
             return new OkObjectResult(Data.Flights);
+        }
+
+        [FunctionName("HttpFlightById")]
+        public static async Task<IActionResult> HttpFlightById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get",  Route = "flight/{Id}")] HttpRequest req,
+            ILogger log, int Id)
+        {
+          var flight = Data.Flights.FirstOrDefault(f => f.Id == Id);
+
+          if (flight == null) {
+            return new NotFoundResult();
+          }
+
+            return new OkObjectResult(flight);
         }
     }
 }
